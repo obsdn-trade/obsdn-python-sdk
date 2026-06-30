@@ -16,6 +16,9 @@ from obsdn.rest.auth_endpoints import AuthEndpoints
 from obsdn.rest.asset import Asset
 from obsdn.rest.chain import Chain
 from obsdn.sign.domain import get_domain
+from obsdn.ws.cache import Book, MarketDataCache, Ticker
+from obsdn.ws.channel import Channel
+from obsdn.ws.session import Session
 
 
 class Client:
@@ -69,6 +72,8 @@ class Client:
             self._sender_address = sender
 
         self._market_cache: dict[str, dict] | None = None
+        self._data_cache = MarketDataCache()
+        self._ws_session: Session | None = None
 
     def markets(self) -> Markets:
         return Markets(self._rest)
@@ -103,7 +108,52 @@ class Client:
     def invalidate_market_cache(self) -> None:
         self._market_cache = None
 
+    def ws(self) -> Session:
+        if self._ws_session is None:
+            self._ws_session = Session(self._ws_url, self._hmac, self._data_cache)
+        return self._ws_session
+
+    async def start_cache(
+        self, markets: list[str] | None = None, private: bool = True
+    ) -> None:
+        """Subscribe to book + ticker for given markets (or all).
+        Populates in-memory cache for instant reads via .book()/.ticker()."""
+        session = self.ws()
+        await session.connect()
+
+        if markets is None:
+            mkts = await self.markets().list()
+            markets = [m["mkt_id"] for m in mkts if m.get("enabled")]
+
+        for mkt in markets:
+            await session.subscribe(Channel.book(mkt))
+            await session.subscribe(Channel.ticker(mkt))
+
+        if private and self._hmac:
+            await session.subscribe(Channel.order())
+            await session.subscribe(Channel.position())
+            await session.subscribe(Channel.portfolio())
+
+    async def stop_cache(self) -> None:
+        if self._ws_session:
+            await self._ws_session.shutdown()
+            self._ws_session = None
+        self._data_cache.clear()
+
+    def book(self, market: str) -> Book | None:
+        return self._data_cache.book(market)
+
+    def ticker(self, market: str) -> Ticker | None:
+        return self._data_cache.ticker(market)
+
+    def oracle_price(self, asset: str) -> float | None:
+        return self._data_cache.oracle_price(asset)
+
+    def position(self, market: str) -> dict | None:
+        return self._data_cache.position(market)
+
     async def close(self) -> None:
+        await self.stop_cache()
         await self._rest.close()
 
     async def __aenter__(self) -> Client:
