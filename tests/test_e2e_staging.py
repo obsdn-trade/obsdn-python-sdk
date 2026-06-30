@@ -1,11 +1,9 @@
 """End-to-end integration test against staging testnet.
 
-Covers the core exchange flow with a fresh wallet:
-  1. Register signer (EIP-712 signatures)
-  2. Faucet USDC
-  3. Place a limit order
-  4. Cancel the order
-  5. Withdraw
+Covers public endpoints + full exchange flow with a fresh wallet:
+  - Public: markets, orderbook, assets, chain config, auth guard
+  - Authenticated: register signer, faucet, portfolio, place order,
+    open orders, cancel order, withdraw
 
 Run: pytest tests/test_e2e_staging.py -v -s
 """
@@ -19,6 +17,7 @@ from eth_account import Account as EthAccount
 
 from obsdn.client import Client
 from obsdn.env import Env
+from obsdn.error import AuthError
 from obsdn.rest.orders import LimitOrder
 from obsdn.sign.domain import get_domain
 from obsdn.sign.register import sign_register, sign_delegated_signer
@@ -39,9 +38,52 @@ def fresh_wallet():
     return acct.key.hex(), acct.address
 
 
+# --- Public endpoints (no auth) ---
+
+@pytest.mark.asyncio
+async def test_get_markets():
+    async with Client(env=Env.STAGING) as client:
+        markets = await client.markets().list()
+        assert len(markets) > 0
+        assert "mkt_id" in markets[0]
+        assert "mark_px" in markets[0]
+
+
+@pytest.mark.asyncio
+async def test_get_orderbook():
+    async with Client(env=Env.STAGING) as client:
+        markets = await client.markets().list()
+        ob = await client.markets().orderbook(markets[0]["mkt_id"])
+        book = ob.get("book", ob)
+        assert "bids" in book or "asks" in book
+
+
+@pytest.mark.asyncio
+async def test_get_assets():
+    async with Client(env=Env.STAGING) as client:
+        assets = await client.asset().list()
+        assert assets is not None
+
+
+@pytest.mark.asyncio
+async def test_get_chain_config():
+    async with Client(env=Env.STAGING) as client:
+        chain = await client.chain().config()
+        assert "chain_id" in chain or "addrs" in chain
+
+
+@pytest.mark.asyncio
+async def test_auth_required_without_key():
+    async with Client(env=Env.STAGING) as client:
+        with pytest.raises(AuthError):
+            await client.portfolio().get()
+
+
+# --- Full authenticated flow ---
+
 @pytest.mark.asyncio
 async def test_full_exchange_flow(fresh_wallet):
-    """Register -> faucet -> place order -> cancel -> withdraw."""
+    """Register -> faucet -> portfolio -> place order -> list open -> cancel -> withdraw."""
     signer_key, address = fresh_wallet
     nonce = time.time_ns()
     message = "obsdn-python-sdk-e2e-test"
@@ -78,7 +120,6 @@ async def test_full_exchange_flow(fresh_wallet):
     assert api_key, "register should return api_key"
     assert api_secret, "register should return api_secret"
 
-    # Step 2-5: Use authenticated client
     async with Client(
         env=Env.STAGING,
         api_key=api_key,
@@ -104,7 +145,11 @@ async def test_full_exchange_flow(fresh_wallet):
                 break
         assert free_coll > 0, "deposit not reflected after 60s"
 
-        # Step 3: Place a limit order (far from market to avoid fills)
+        # Step 3: Portfolio has collateral
+        portfolio = resp.get("portfolio", {})
+        assert float(portfolio.get("tot_coll_val", 0)) > 0
+
+        # Step 4: Place a limit order (far from market to avoid fills)
         order = await client.orders().place_limit(LimitOrder(
             mkt_id="BTC-PERP",
             side=OrderSide.BUY,
@@ -115,11 +160,16 @@ async def test_full_exchange_flow(fresh_wallet):
         oid = order.get("oid") or order.get("ord", {}).get("oid")
         assert oid, f"place_limit should return oid, got: {order}"
 
-        # Step 4: Cancel the order
+        # Step 5: List open orders includes the placed order
+        open_orders = await client.orders().list_open()
+        oids = [o.get("oid") for o in open_orders.get("ords", open_orders.get("orders", []))]
+        assert oid in oids, f"placed order {oid} not in open orders {oids}"
+
+        # Step 6: Cancel the order
         cancel = await client.orders().cancel(oid)
         assert cancel is not None
 
-        # Step 5: Withdraw
+        # Step 7: Withdraw
         withdraw = await client.account().withdraw(
             token=STAGING_USDC,
             amount=WITHDRAW_AMOUNT,
