@@ -13,7 +13,7 @@ WITHDRAW_TYPES = {
 
 
 def sign_withdraw(
-    private_key: str,
+    signer_key: str,
     domain: dict,
     sender: str,
     token: str,
@@ -21,4 +21,4 @@ def sign_withdraw(
     nonce: int,
 ) -> str:
     msg = {"sender": sender, "token": token, "amount": amount, "nonce": nonce}
-    return sign_eip712(private_key, "Withdraw", WITHDRAW_TYPES, domain, msg)
+    return sign_eip712(signer_key, "Withdraw", WITHDRAW_TYPES, domain, msg)

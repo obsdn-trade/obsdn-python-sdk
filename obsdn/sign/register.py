@@ -19,7 +19,7 @@ DELEGATED_SIGNER_TYPES = {
 
 
 def sign_register(
-    private_key: str,
+    signer_key: str,
     domain: dict,
     sender: str,
     signer: str,
@@ -27,13 +27,13 @@ def sign_register(
     nonce: int,
 ) -> str:
     msg = {"sender": sender, "signer": signer, "message": message, "nonce": nonce}
-    return sign_eip712(private_key, "Register", REGISTER_TYPES, domain, msg)
+    return sign_eip712(signer_key, "Register", REGISTER_TYPES, domain, msg)
 
 
 def sign_delegated_signer(
-    private_key: str,
+    signer_key: str,
     domain: dict,
     account: str,
 ) -> str:
     msg = {"account": account}
-    return sign_eip712(private_key, "DelegatedSigner", DELEGATED_SIGNER_TYPES, domain, msg)
+    return sign_eip712(signer_key, "DelegatedSigner", DELEGATED_SIGNER_TYPES, domain, msg)

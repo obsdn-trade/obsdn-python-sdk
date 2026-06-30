@@ -34,14 +34,14 @@ def encode_eip712(
 
 
 def sign_eip712(
-    private_key: str,
+    signer_key: str,
     primary_type: str,
     types: dict,
     domain: dict,
     message: dict,
 ) -> str:
     signable = encode_eip712(primary_type, types, domain, message)
-    signed = Account.sign_message(signable, private_key)
+    signed = Account.sign_message(signable, signer_key)
     sig_bytes = signed.signature
     v = sig_bytes[-1]
     if v < 27:

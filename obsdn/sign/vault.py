@@ -32,21 +32,21 @@ UNSTAKE_VAULT_TYPES = {
 
 
 def sign_create_vault(
-    private_key: str, domain: dict, main: str, vault: str, profit_share_bps: int
+    signer_key: str, domain: dict, main: str, vault: str, profit_share_bps: int
 ) -> str:
     msg = {"main": main, "vault": vault, "profitShareBps": profit_share_bps}
-    return sign_eip712(private_key, "CreateVault", CREATE_VAULT_TYPES, domain, msg)
+    return sign_eip712(signer_key, "CreateVault", CREATE_VAULT_TYPES, domain, msg)
 
 
 def sign_stake_vault(
-    private_key: str, domain: dict, vault: str, staker: str, token: str, amount: int, nonce: int
+    signer_key: str, domain: dict, vault: str, staker: str, token: str, amount: int, nonce: int
 ) -> str:
     msg = {"vault": vault, "staker": staker, "token": token, "amount": amount, "nonce": nonce}
-    return sign_eip712(private_key, "StakeVault", STAKE_VAULT_TYPES, domain, msg)
+    return sign_eip712(signer_key, "StakeVault", STAKE_VAULT_TYPES, domain, msg)
 
 
 def sign_unstake_vault(
-    private_key: str, domain: dict, vault: str, staker: str, token: str, amount: int, nonce: int
+    signer_key: str, domain: dict, vault: str, staker: str, token: str, amount: int, nonce: int
 ) -> str:
     msg = {"vault": vault, "staker": staker, "token": token, "amount": amount, "nonce": nonce}
-    return sign_eip712(private_key, "UnstakeVault", UNSTAKE_VAULT_TYPES, domain, msg)
+    return sign_eip712(signer_key, "UnstakeVault", UNSTAKE_VAULT_TYPES, domain, msg)

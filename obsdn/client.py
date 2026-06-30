@@ -27,7 +27,7 @@ class Client:
         env: Env | CustomEnv | str = Env.PRODUCTION,
         api_key: str | None = None,
         api_secret: str | None = None,
-        private_key: str | None = None,
+        signer_key: str | None = None,
         sender: str | None = None,
         base_url: str | None = None,
         ws_url: str | None = None,
@@ -58,12 +58,12 @@ class Client:
         self._hmac = hmac
         self._rest = RestClient(rest_base, hmac, timeout)
 
-        self._private_key: str | None = private_key
+        self._signer_key: str | None = signer_key
         self._sender_address: str | None = None
         self._eip712_domain: dict | None = eip712_domain
 
-        if private_key:
-            acct = EthAccount.from_key(private_key)
+        if signer_key:
+            acct = EthAccount.from_key(signer_key)
             signer_addr = acct.address
             self._sender_address = sender or signer_addr
             if eip712_domain is None:

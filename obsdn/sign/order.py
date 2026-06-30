@@ -15,7 +15,7 @@ ORDER_TYPES = {
 
 
 def sign_order(
-    private_key: str,
+    signer_key: str,
     domain: dict,
     sender: str,
     market_index: int,
@@ -25,7 +25,7 @@ def sign_order(
     nonce: int,
 ) -> str:
     msg = _build_message(sender, market_index, side, size, price, nonce)
-    return sign_eip712(private_key, "Order", ORDER_TYPES, domain, msg)
+    return sign_eip712(signer_key, "Order", ORDER_TYPES, domain, msg)
 
 
 def order_signing_hash(

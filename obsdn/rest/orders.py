@@ -87,7 +87,7 @@ class Orders:
         side_int = 0 if order.side == OrderSide.BUY else 1
 
         sig = sign_order(
-            private_key=self._client._private_key,
+            signer_key=self._client._signer_key,
             domain=self._client._eip712_domain,
             sender=self._client._sender_address,
             market_index=market_index,

@@ -14,7 +14,7 @@ TRANSFER_TYPES = {
 
 
 def sign_transfer(
-    private_key: str,
+    signer_key: str,
     domain: dict,
     from_addr: str,
     to_addr: str,
@@ -23,4 +23,4 @@ def sign_transfer(
     nonce: int,
 ) -> str:
     msg = {"from": from_addr, "to": to_addr, "token": token, "amount": amount, "nonce": nonce}
-    return sign_eip712(private_key, "Transfer", TRANSFER_TYPES, domain, msg)
+    return sign_eip712(signer_key, "Transfer", TRANSFER_TYPES, domain, msg)

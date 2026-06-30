@@ -13,7 +13,7 @@ async def main():
         env=Env.STAGING,
         api_key=os.environ["OBSDN_API_KEY"],
         api_secret=os.environ["OBSDN_API_SECRET"],
-        private_key=os.environ["OBSDN_PRIVATE_KEY"],
+        signer_key=os.environ["OBSDN_SIGNER_KEY"],
     ) as client:
         markets = await client.markets().list()
         print(f"{len(markets)} markets available")

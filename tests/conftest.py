@@ -9,16 +9,16 @@ from obsdn.env import Env
 
 STAGING_API_KEY = os.environ.get("OBSDN_TEST_API_KEY", "")
 STAGING_API_SECRET = os.environ.get("OBSDN_TEST_API_SECRET", "")
-STAGING_PRIVATE_KEY = os.environ.get("OBSDN_TEST_PRIVATE_KEY", "")
+STAGING_SIGNER_KEY = os.environ.get("OBSDN_TEST_SIGNER_KEY", "")
 
 has_credentials = bool(STAGING_API_KEY and STAGING_API_SECRET)
-has_private_key = bool(STAGING_PRIVATE_KEY)
+has_signer_key = bool(STAGING_SIGNER_KEY)
 
 skip_no_creds = pytest.mark.skipif(
     not has_credentials, reason="OBSDN_TEST_API_KEY/SECRET not set"
 )
 skip_no_key = pytest.mark.skipif(
-    not has_private_key, reason="OBSDN_TEST_PRIVATE_KEY not set"
+    not has_signer_key, reason="OBSDN_TEST_SIGNER_KEY not set"
 )
 
 
@@ -34,6 +34,6 @@ async def auth_client():
         env=Env.STAGING,
         api_key=STAGING_API_KEY,
         api_secret=STAGING_API_SECRET,
-        private_key=STAGING_PRIVATE_KEY or None,
+        signer_key=STAGING_SIGNER_KEY or None,
     ) as c:
         yield c

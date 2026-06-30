@@ -10,37 +10,46 @@ pip install obsdn-sdk
 
 ## Quick Start
 
+### Read-only (market data, portfolio)
+
 ```python
 import asyncio
 from obsdn.client import Client
 from obsdn.env import Env
-from obsdn.rest.orders import LimitOrder
-from obsdn.types import OrderSide
 
 async def main():
     async with Client(
         env=Env.STAGING,
         api_key="your-api-key",
         api_secret="your-api-secret",
-        private_key="0xYourPrivateKey",
     ) as client:
-        # Fetch markets
         markets = await client.markets().list()
         print(f"{len(markets)} markets")
 
-        # Place a limit order (signing handled automatically)
-        order = await client.orders().place_limit(LimitOrder(
-            mkt_id="BTC-PERP",
-            side=OrderSide.BUY,
-            price="50000",
-            size="0.001",
-        ))
-        print(f"Order: {order['oid']}")
-
-        # Cancel it
-        await client.orders().cancel(order["oid"])
+        portfolio = await client.portfolio().get()
 
 asyncio.run(main())
+```
+
+### Trading (requires signer key for EIP-712 signing)
+
+```python
+from obsdn.rest.orders import LimitOrder
+from obsdn.types import OrderSide
+
+async with Client(
+    env=Env.STAGING,
+    api_key="your-api-key",
+    api_secret="your-api-secret",
+    signer_key="0xYourSignerPrivateKey",
+) as client:
+    order = await client.orders().place_limit(LimitOrder(
+        mkt_id="BTC-PERP",
+        side=OrderSide.BUY,
+        price="50000",
+        size="0.001",
+    ))
+    await client.orders().cancel(order["oid"])
 ```
 
 ## Real-Time Market Data Cache
@@ -68,14 +77,14 @@ async with Client(env=Env.STAGING, ...) as client:
 Client(api_key="...", api_secret="...")
 ```
 
-**EIP-712 (private key)** for order/transfer/withdrawal signing:
+**EIP-712 (signer key)** for order/transfer/withdrawal signing:
 ```python
-Client(private_key="0x...")
+Client(signer_key="0x...")
 ```
 
 **Delegated signing** (signer key != sender wallet):
 ```python
-Client(private_key="0xSignerKey", sender="0xMainWallet")
+Client(signer_key="0xSignerKey", sender="0xMainWallet")
 ```
 
 ## REST API
@@ -93,7 +102,7 @@ portfolio = await client.portfolio().get()
 orders = await client.orders().list_open()
 history = await client.orders().list_history()
 
-# Trading (requires private_key for EIP-712 signing)
+# Trading (requires signer_key for EIP-712 signing)
 order = await client.orders().place_limit(LimitOrder(...))
 await client.orders().cancel(oid)
 await client.orders().cancel_all()
