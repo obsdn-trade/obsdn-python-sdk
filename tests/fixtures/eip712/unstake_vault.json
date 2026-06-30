@@ -1,0 +1,22 @@
+{
+  "template": "UnstakeVault",
+  "domain": {
+    "name": "Obsidian",
+    "version": "1",
+    "chain_id": "10143",
+    "verifying_contract": "0xB95aE40b700FDBb0906b8Dc2AeBBDd94848325Df"
+  },
+  "input": {
+    "amount": "50000000",
+    "nonce": "19",
+    "staker": "0x5555555555555555555555555555555555555555",
+    "token": "0x3333333333333333333333333333333333333333",
+    "vault": "0x4444444444444444444444444444444444444444"
+  },
+  "domain_separator": "0x015838c3bb89cb7ac14be0a4c0c5f143c3782da15cb8b45375fc82b01d22794b",
+  "struct_hash": "0x65d645f730a3a18491a308239b92b8cfa218b591b5c86a14a52358c761f54063",
+  "digest": "0x3dd0c6e30e50ed30f28034e92e7841511c18e3ea74e56fc7d71d88d3aea6bbf6",
+  "private_key": "0x0101010101010101010101010101010101010101010101010101010101010101",
+  "signer_address": "0x1a642f0E3c3aF545E7AcBD38b07251B3990914F1",
+  "signature": "0x13e7585486f355d4f43f0ff37cae35118e86e6995c23fbd121f45ee778f9ab4144855f95eccfd16bd7836b2af34b1e31f394c24ec1cc84dd5c8cfd315ac8bb211b"
+}

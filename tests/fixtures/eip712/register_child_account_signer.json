@@ -1,0 +1,22 @@
+{
+  "template": "RegisterChildAccountSigner",
+  "domain": {
+    "name": "Obsidian",
+    "version": "1",
+    "chain_id": "10143",
+    "verifying_contract": "0xB95aE40b700FDBb0906b8Dc2AeBBDd94848325Df"
+  },
+  "input": {
+    "child_account": "0x7777777777777777777777777777777777777777",
+    "main": "0x1111111111111111111111111111111111111111",
+    "message": "child-account-register",
+    "nonce": "7",
+    "signer": "0x8888888888888888888888888888888888888888"
+  },
+  "domain_separator": "0x015838c3bb89cb7ac14be0a4c0c5f143c3782da15cb8b45375fc82b01d22794b",
+  "struct_hash": "0x4150e90258db186cb2bfbdfd02a9cf8bf135cc349d363c825db50ae11bf922d0",
+  "digest": "0x452bba808c403f7850b9360e5bad418642a1a4d80a5094841cf403054ad2fe8c",
+  "private_key": "0x0101010101010101010101010101010101010101010101010101010101010101",
+  "signer_address": "0x1a642f0E3c3aF545E7AcBD38b07251B3990914F1",
+  "signature": "0xe65372938a646f7f5ef9e4388ca6ce3691f46b71cf11ddd476373d397f6366b36213c658aaaa671c77cde389c09264a66325955dd0ccd3aeffe016d2e62debdd1c"
+}

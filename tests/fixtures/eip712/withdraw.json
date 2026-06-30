@@ -1,0 +1,21 @@
+{
+  "template": "Withdraw",
+  "domain": {
+    "name": "Obsidian",
+    "version": "1",
+    "chain_id": "10143",
+    "verifying_contract": "0xB95aE40b700FDBb0906b8Dc2AeBBDd94848325Df"
+  },
+  "input": {
+    "amount": "500000000",
+    "nonce": "99",
+    "sender": "0x1111111111111111111111111111111111111111",
+    "token": "0x3333333333333333333333333333333333333333"
+  },
+  "domain_separator": "0x015838c3bb89cb7ac14be0a4c0c5f143c3782da15cb8b45375fc82b01d22794b",
+  "struct_hash": "0xc150ba8b939596b34bcade6ee53a56e749b5ffc7cd8e27bda7d5bd38ad4debf7",
+  "digest": "0xbd35c37c141ceb12242041228cf778d7d2f9c17e5872d8e729b749c76f615af5",
+  "private_key": "0x0101010101010101010101010101010101010101010101010101010101010101",
+  "signer_address": "0x1a642f0E3c3aF545E7AcBD38b07251B3990914F1",
+  "signature": "0x2e7e21059397755f496ef77c36021cfaffce7a3607bcce4f439704e4443ae1ef20a06c8c82da678596780f3c2ff7c13643c5b9793ac5a8c53b830de3cc5dfde11b"
+}
