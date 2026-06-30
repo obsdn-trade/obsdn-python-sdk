@@ -1,6 +1,6 @@
 # OBSDN Python SDK
 
-Python SDK for the [OBSDN](https://obsdn.trade) perpetual exchange.
+Python SDK for the [OBSDN](https://obsdn.trade) perpetual exchange. Async-first, with EIP-712 signing abstracted and a real-time market data cache.
 
 ## Install
 
@@ -12,31 +12,140 @@ pip install obsdn-sdk
 
 ```python
 import asyncio
-from obsdn import Env, OrderSide
+from obsdn.client import Client
+from obsdn.env import Env
+from obsdn.rest.orders import LimitOrder
+from obsdn.types import OrderSide
 
 async def main():
-    from obsdn.client import Client
-
     async with Client(
         env=Env.STAGING,
         api_key="your-api-key",
         api_secret="your-api-secret",
         private_key="0xYourPrivateKey",
     ) as client:
+        # Fetch markets
         markets = await client.markets().list()
         print(f"{len(markets)} markets")
 
-        order = await client.orders().place_limit(
+        # Place a limit order (signing handled automatically)
+        order = await client.orders().place_limit(LimitOrder(
             mkt_id="BTC-PERP",
             side=OrderSide.BUY,
             price="50000",
             size="0.001",
-        )
+        ))
         print(f"Order: {order['oid']}")
+
+        # Cancel it
+        await client.orders().cancel(order["oid"])
 
 asyncio.run(main())
 ```
 
+## Real-Time Market Data Cache
+
+Run as a long-lived process with instant local state:
+
+```python
+async with Client(env=Env.STAGING, ...) as client:
+    # Subscribe to WS and populate in-memory cache
+    await client.start_cache(markets=["BTC-PERP", "ETH-PERP"])
+
+    # Instant reads from memory (no network round-trip)
+    book = client.book("BTC-PERP")
+    print(f"mid={book.mid_price}  spread={book.spread}")
+    print(f"best bid={book.best_bid}  best ask={book.best_ask}")
+
+    ticker = client.ticker("BTC-PERP")
+    oracle = client.oracle_price("BTC")
+```
+
+## Authentication
+
+**HMAC (API key/secret)** for REST endpoint authentication:
+```python
+Client(api_key="...", api_secret="...")
+```
+
+**EIP-712 (private key)** for order/transfer/withdrawal signing:
+```python
+Client(private_key="0x...")
+```
+
+**Delegated signing** (signer key != sender wallet):
+```python
+Client(private_key="0xSignerKey", sender="0xMainWallet")
+```
+
+## REST API
+
+```python
+# Public (no auth)
+markets = await client.markets().list()
+ob = await client.markets().orderbook("BTC-PERP")
+candles = await client.markets().candles("BTC-PERP", resolution="1h")
+assets = await client.asset().list()
+chain = await client.chain().config()
+
+# Authenticated
+portfolio = await client.portfolio().get()
+orders = await client.orders().list_open()
+history = await client.orders().list_history()
+
+# Trading (requires private_key for EIP-712 signing)
+order = await client.orders().place_limit(LimitOrder(...))
+await client.orders().cancel(oid)
+await client.orders().cancel_all()
+
+# Transfers
+await client.account().transfer(to="0x...", token="0x...", amount="100")
+await client.account().withdraw(token="0x...", amount="100")
+```
+
+## WebSocket
+
+```python
+from obsdn.ws.channel import Channel
+
+session = client.ws()
+await session.connect()
+
+# Public channels
+stream = await session.subscribe(Channel.book("BTC-PERP"))
+async for update in stream:
+    print(update.data)
+
+# Private channels (requires api_key/secret)
+orders = await session.subscribe(Channel.order())
+positions = await session.subscribe(Channel.position())
+```
+
+## Environments
+
+| Environment | REST | WebSocket |
+|-------------|------|-----------|
+| Production | `api.obsdn.trade` | `pulse.obsdn.trade/ws` |
+| Staging | `nova.staging.obsdn.trade` | `pulse.staging.obsdn.trade/ws` |
+
+```python
+Client(env=Env.PRODUCTION)  # default
+Client(env=Env.STAGING)     # testnet
+Client(base_url="https://custom", ws_url="wss://custom/ws")  # custom
+```
+
+## Examples
+
+See [`examples/`](examples/) for runnable scripts:
+
+- `place_order.py` - place a limit order
+- `cancel_order.py` - cancel by order ID
+- `ws_book.py` - stream order book with top-of-book display
+- `market_maker.py` - simple spread quoting loop
+- `ws_private_orders.py` - stream private order updates
+
 ## Documentation
 
-See [docs.obsdn.trade](https://docs.obsdn.trade) for full API reference.
+- [API Reference](https://docs.obsdn.trade) - REST and WebSocket endpoints
+- [Getting Started](https://docs.obsdn.trade/api-ref/guides/getting-started) - integration flow
+- [Signing Guide](https://docs.obsdn.trade/api-ref/guides/signing) - EIP-712 payloads
