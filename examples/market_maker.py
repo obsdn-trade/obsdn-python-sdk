@@ -2,6 +2,11 @@
 
 WARNING: This is an example only. Real market making requires
 proper risk management, inventory control, and hedging.
+
+Set OBSDN_SENDER to your main account address when the signer key is a
+delegated signer, i.e. when its address differs from the account the order
+belongs to. Orders signed with the signer's own address as sender are
+rejected with "invalid order signature".
 """
 
 import asyncio
@@ -24,6 +29,7 @@ async def main():
         api_key=os.environ["OBSDN_API_KEY"],
         api_secret=os.environ["OBSDN_API_SECRET"],
         signer_key=os.environ["OBSDN_SIGNER_KEY"],
+        sender=os.environ.get("OBSDN_SENDER"),
     ) as client:
         # Start real-time cache for instant price reads
         await client.start_cache(markets=[MARKET], private=False)

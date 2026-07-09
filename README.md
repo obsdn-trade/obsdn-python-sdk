@@ -33,6 +33,11 @@ asyncio.run(main())
 
 ### Trading (requires signer key for EIP-712 signing)
 
+If your signer key was registered as a delegated signer, its address differs
+from your main account. Pass `sender` with the main account address, or every
+order is rejected with `invalid order signature`. See
+[Authentication](#authentication) below.
+
 ```python
 from obsdn.rest.orders import LimitOrder
 from obsdn.types import OrderSide
@@ -42,6 +47,7 @@ async with Client(
     api_key="your-api-key",
     api_secret="your-api-secret",
     signer_key="0xYourSignerPrivateKey",
+    sender="0xYourMainAccount",  # omit only if signer == main account
 ) as client:
     order = await client.orders().place_limit(LimitOrder(
         mkt_id="BTC-PERP",
@@ -86,6 +92,12 @@ Client(signer_key="0x...")
 ```python
 Client(signer_key="0xSignerKey", sender="0xMainWallet")
 ```
+
+`signer_key` is *who signs*; `sender` is *whose account the order is for*. They
+match only when you sign with the main account's own key. If you created the
+signer from the API Keys page, they differ, and `sender` is required: the SDK
+otherwise defaults it to the signer's own address and the exchange rejects the
+order with `invalid order signature`. Both addresses are shown on that page.
 
 ## REST API
 

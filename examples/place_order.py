@@ -1,4 +1,10 @@
-"""Place a limit order on OBSDN staging testnet."""
+"""Place a limit order on OBSDN staging testnet.
+
+Set OBSDN_SENDER to your main account address when the signer key is a
+delegated signer, i.e. when its address differs from the account the order
+belongs to. Orders signed with the signer's own address as sender are
+rejected with "invalid order signature".
+"""
 
 import asyncio
 import os
@@ -15,6 +21,7 @@ async def main():
         api_key=os.environ["OBSDN_API_KEY"],
         api_secret=os.environ["OBSDN_API_SECRET"],
         signer_key=os.environ["OBSDN_SIGNER_KEY"],
+        sender=os.environ.get("OBSDN_SENDER"),
     ) as client:
         markets = await client.markets().list()
         print(f"{len(markets)} markets available")
