@@ -33,6 +33,10 @@ class Update:
     gsn: int
     data: Any
     event_type: EventType = EventType.UPDATE
+    # envelope ts: nanoseconds, wire type is a quoted JSON string
+    ts: str | None = None
+    # portfolio/position updates only; absent on snapshots
+    update_reason: str | None = None
 
     def as_trades(self) -> list[Trade]:
         """Decode data as a list of Trade. Works for both snapshot and update."""

@@ -189,6 +189,8 @@ class Session:
 
         data = frame.get("data", {})
         gsn = frame.get("gsn", 0)
+        ts = frame.get("ts")
+        update_reason = frame.get("update_reason")
         # Filter comes in "filter" field or nested in "params"
         filt = frame.get("filter", {})
         filter_val = filt.get("market", filt.get("asset", "")) if isinstance(filt, dict) else str(filt)
@@ -203,6 +205,8 @@ class Session:
             gsn=gsn,
             data=data,
             event_type=evt_type,
+            ts=ts,
+            update_reason=update_reason,
         )
         self._dispatch_update(ch_name, filter_val, update)
 
@@ -212,10 +216,11 @@ class Session:
         if ch == ChannelName.BOOK:
             bids = data.get("bids", [])
             asks = data.get("asks", [])
+            checksum = data.get("checksum")
             if is_snapshot:
-                self._cache.apply_book_snapshot(filt, bids, asks)
+                self._cache.apply_book_snapshot(filt, bids, asks, checksum)
             else:
-                self._cache.apply_book_delta(filt, bids, asks)
+                self._cache.apply_book_delta(filt, bids, asks, checksum)
         elif ch == ChannelName.TICKER:
             self._cache.apply_ticker(filt, data)
         elif ch == ChannelName.ORACLE:

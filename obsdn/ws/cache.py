@@ -10,6 +10,8 @@ class Book:
     bids: list[list[str]] = field(default_factory=list)
     asks: list[list[str]] = field(default_factory=list)
     timestamp: float = 0.0
+    # server CRC32 over the book after this frame; None when server omits it
+    checksum: int | None = None
 
     @property
     def best_bid(self) -> tuple[str, str] | None:
@@ -76,23 +78,29 @@ class MarketDataCache:
     def all_tickers(self) -> dict[str, Ticker]:
         return dict(self._tickers)
 
-    def apply_book_snapshot(self, market: str, bids: list, asks: list) -> None:
+    def apply_book_snapshot(
+        self, market: str, bids: list, asks: list, checksum: int | None = None
+    ) -> None:
         self._books[market] = Book(
             bids=sorted(bids, key=lambda x: float(x[0]), reverse=True),
             asks=sorted(asks, key=lambda x: float(x[0])),
             timestamp=time.time(),
+            checksum=checksum,
         )
 
-    def apply_book_delta(self, market: str, bids: list, asks: list) -> None:
+    def apply_book_delta(
+        self, market: str, bids: list, asks: list, checksum: int | None = None
+    ) -> None:
         book = self._books.get(market)
         if book is None:
-            self.apply_book_snapshot(market, bids, asks)
+            self.apply_book_snapshot(market, bids, asks, checksum)
             return
         if bids:
             book.bids = _apply_levels(book.bids, bids, reverse=True)
         if asks:
             book.asks = _apply_levels(book.asks, asks, reverse=False)
         book.timestamp = time.time()
+        book.checksum = checksum
 
     def apply_ticker(self, market: str, data: dict) -> None:
         self._tickers[market] = Ticker(
