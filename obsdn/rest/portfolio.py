@@ -25,16 +25,10 @@ class Portfolio:
         return await self._rest.get_with_query("/positions/history", params)
 
     async def set_leverage(self, mkt_id: str, leverage: str) -> dict[str, Any]:
-        return await self._rest.post(
-            f"/positions/{mkt_id}/leverage", {"lev": leverage}
-        )
+        return await self._rest.post(f"/positions/{mkt_id}/leverage", {"lev": leverage})
 
     async def set_margin_mode(self, mkt_id: str, mode: str) -> dict[str, Any]:
-        return await self._rest.post(
-            f"/positions/{mkt_id}/margin-mode", {"mode": mode}
-        )
+        return await self._rest.post(f"/positions/{mkt_id}/margin-mode", {"mode": mode})
 
     async def transfer_margin(self, mkt_id: str, amount: str) -> dict[str, Any]:
-        return await self._rest.post(
-            f"/positions/{mkt_id}/margin", {"amount": amount}
-        )
+        return await self._rest.post(f"/positions/{mkt_id}/margin", {"amount": amount})

@@ -1,7 +1,7 @@
 import pytest
 
-from obsdn.sign.scale import scale_decimal_str
 from obsdn.error import SignError
+from obsdn.sign.scale import scale_decimal_str
 
 
 def test_integer_scales_18_zeros():

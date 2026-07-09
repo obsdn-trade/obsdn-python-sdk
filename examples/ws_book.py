@@ -1,10 +1,11 @@
 """Stream order book from OBSDN and print top-of-book."""
+
 import asyncio
 
 from obsdn.client import Client
 from obsdn.env import Env
 from obsdn.ws.channel import Channel
-from obsdn.ws.event import Update, Event
+from obsdn.ws.event import Event
 
 
 async def main():

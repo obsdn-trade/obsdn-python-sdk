@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
-from typing import Any, TYPE_CHECKING
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
 
-from obsdn.rest.base import AuthMode, RestClient
-from obsdn.sign.scale import scale_decimal_str
 from obsdn.error import SignError
-from obsdn.types import OrderSide, OrderType, TimeInForce, SelfTradePrevention
+from obsdn.rest.base import RestClient
+from obsdn.sign.scale import scale_decimal_str
+from obsdn.types import OrderSide, OrderType, SelfTradePrevention, TimeInForce
 
 if TYPE_CHECKING:
     from obsdn.client import Client

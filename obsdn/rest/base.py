@@ -87,6 +87,7 @@ class RestClient:
         body_bytes = b""
         if body is not None:
             import json
+
             body_bytes = json.dumps(body).encode()
 
         signer = self._signer
@@ -127,5 +128,6 @@ def _raise_api_error(resp: httpx.Response) -> None:
             request_id=parsed.get("request_id", ""),
         )
     except (ValueError, KeyError):
+        # body was not the expected error envelope; the parse failure adds nothing
         body = resp.text[:MAX_ERROR_BODY]
-        raise ApiError(status=resp.status_code, message=body)
+        raise ApiError(status=resp.status_code, message=body) from None

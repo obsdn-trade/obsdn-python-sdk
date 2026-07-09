@@ -5,16 +5,16 @@ from typing import Any
 from eth_account import Account as EthAccount
 
 from obsdn.auth import HmacSigner
-from obsdn.env import Env, CustomEnv
-from obsdn.error import ConfigError, SignError
+from obsdn.env import CustomEnv, Env
+from obsdn.error import ConfigError
+from obsdn.rest.account import Account
+from obsdn.rest.asset import Asset
+from obsdn.rest.auth_endpoints import AuthEndpoints
 from obsdn.rest.base import RestClient
+from obsdn.rest.chain import Chain
 from obsdn.rest.markets import Markets
 from obsdn.rest.orders import Orders
 from obsdn.rest.portfolio import Portfolio
-from obsdn.rest.account import Account
-from obsdn.rest.auth_endpoints import AuthEndpoints
-from obsdn.rest.asset import Asset
-from obsdn.rest.chain import Chain
 from obsdn.sign.domain import get_domain
 from obsdn.ws.cache import Book, MarketDataCache, Ticker
 from obsdn.ws.channel import Channel
@@ -113,9 +113,7 @@ class Client:
             self._ws_session = Session(self._ws_url, self._hmac, self._data_cache)
         return self._ws_session
 
-    async def start_cache(
-        self, markets: list[str] | None = None, private: bool = True
-    ) -> None:
+    async def start_cache(self, markets: list[str] | None = None, private: bool = True) -> None:
         """Subscribe to book + ticker for given markets (or all).
         Populates in-memory cache for instant reads via .book()/.ticker()."""
         session = self.ws()

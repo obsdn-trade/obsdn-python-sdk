@@ -7,6 +7,7 @@ Covers public endpoints + full exchange flow with a fresh wallet:
 
 Run: pytest tests/test_e2e_staging.py -v -s
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -20,9 +21,8 @@ from obsdn.env import Env
 from obsdn.error import AuthError
 from obsdn.rest.orders import LimitOrder
 from obsdn.sign.domain import get_domain
-from obsdn.sign.register import sign_register, sign_delegated_signer
+from obsdn.sign.register import sign_delegated_signer, sign_register
 from obsdn.types import OrderSide, TimeInForce
-
 
 STAGING_DOMAIN = get_domain(Env.STAGING)
 STAGING_USDC = "0x0F1c3B7a1598297F22A21AC2561Dea31b8037B2e"
@@ -39,6 +39,7 @@ def fresh_wallet():
 
 
 # --- Public endpoints (no auth) ---
+
 
 @pytest.mark.asyncio
 async def test_get_markets():
@@ -80,6 +81,7 @@ async def test_auth_required_without_key():
 
 
 # --- Full authenticated flow ---
+
 
 @pytest.mark.asyncio
 async def test_full_exchange_flow(fresh_wallet):
@@ -150,13 +152,15 @@ async def test_full_exchange_flow(fresh_wallet):
         assert float(portfolio.get("tot_coll_val", 0)) > 0
 
         # Step 4: Place a limit order (far from market to avoid fills)
-        order = await client.orders().place_limit(LimitOrder(
-            mkt_id="BTC-PERP",
-            side=OrderSide.BUY,
-            price=ORDER_PRICE,
-            size=ORDER_SIZE,
-            tif=TimeInForce.GTC,
-        ))
+        order = await client.orders().place_limit(
+            LimitOrder(
+                mkt_id="BTC-PERP",
+                side=OrderSide.BUY,
+                price=ORDER_PRICE,
+                size=ORDER_SIZE,
+                tif=TimeInForce.GTC,
+            )
+        )
         oid = order.get("oid") or order.get("ord", {}).get("oid")
         assert oid, f"place_limit should return oid, got: {order}"
 

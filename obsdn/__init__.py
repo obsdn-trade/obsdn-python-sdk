@@ -1,7 +1,7 @@
-from obsdn.env import Env, CustomEnv
-from obsdn.error import ObsdnError, ConfigError, AuthError, SignError, ApiError, WsError
 from obsdn.auth import HmacSigner
-from obsdn.types import OrderSide, OrderType, TimeInForce, SelfTradePrevention
+from obsdn.env import CustomEnv, Env
+from obsdn.error import ApiError, AuthError, ConfigError, ObsdnError, SignError, WsError
+from obsdn.types import OrderSide, OrderType, SelfTradePrevention, TimeInForce
 
 __all__ = [
     "Env",

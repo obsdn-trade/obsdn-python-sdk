@@ -20,15 +20,19 @@ REGISTER_CHILD_ACCOUNT_SIGNER_TYPES = {
 }
 
 
-def sign_create_subaccount(
-    signer_key: str, domain: dict, main: str, subaccount: str
-) -> str:
+def sign_create_subaccount(signer_key: str, domain: dict, main: str, subaccount: str) -> str:
     msg = {"main": main, "subaccount": subaccount}
     return sign_eip712(signer_key, "CreateSubaccount", CREATE_SUBACCOUNT_TYPES, domain, msg)
 
 
 def sign_register_child_account_signer(
-    signer_key: str, domain: dict, main: str, child_account: str, signer: str, message: str, nonce: int
+    signer_key: str,
+    domain: dict,
+    main: str,
+    child_account: str,
+    signer: str,
+    message: str,
+    nonce: int,
 ) -> str:
     msg = {
         "main": main,
@@ -38,6 +42,9 @@ def sign_register_child_account_signer(
         "nonce": nonce,
     }
     return sign_eip712(
-        signer_key, "RegisterChildAccountSigner",
-        REGISTER_CHILD_ACCOUNT_SIGNER_TYPES, domain, msg,
+        signer_key,
+        "RegisterChildAccountSigner",
+        REGISTER_CHILD_ACCOUNT_SIGNER_TYPES,
+        domain,
+        msg,
     )

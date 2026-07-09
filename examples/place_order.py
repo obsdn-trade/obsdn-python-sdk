@@ -1,4 +1,5 @@
 """Place a limit order on OBSDN staging testnet."""
+
 import asyncio
 import os
 
@@ -18,12 +19,14 @@ async def main():
         markets = await client.markets().list()
         print(f"{len(markets)} markets available")
 
-        order = await client.orders().place_limit(LimitOrder(
-            mkt_id="BTC-PERP",
-            side=OrderSide.BUY,
-            price="50000",
-            size="0.001",
-        ))
+        order = await client.orders().place_limit(
+            LimitOrder(
+                mkt_id="BTC-PERP",
+                side=OrderSide.BUY,
+                price="50000",
+                size="0.001",
+            )
+        )
         print(f"Order placed: {order}")
 
 

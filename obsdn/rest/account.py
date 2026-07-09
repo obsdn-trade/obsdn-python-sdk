@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from obsdn.rest.base import AuthMode, RestClient
 from obsdn.sign.scale import scale_decimal_str
@@ -29,14 +29,17 @@ class Account:
             amount=amount_x18,
             nonce=nonce,
         )
-        return await self._rest.post("/transfers/send-funds", {
-            "from": self._client._sender_address,
-            "to": to,
-            "tkn": token,
-            "amt": amount,
-            "nonce": nonce,
-            "sig": sig,
-        })
+        return await self._rest.post(
+            "/transfers/send-funds",
+            {
+                "from": self._client._sender_address,
+                "to": to,
+                "tkn": token,
+                "amt": amount,
+                "nonce": nonce,
+                "sig": sig,
+            },
+        )
 
     async def withdraw(self, token: str, amount: str) -> dict[str, Any]:
         from obsdn.sign.withdraw import sign_withdraw
@@ -51,12 +54,15 @@ class Account:
             amount=amount_x18,
             nonce=nonce,
         )
-        return await self._rest.post("/transfers/withdraw", {
-            "tkn": token,
-            "amt": amount,
-            "nonce": nonce,
-            "sig": sig,
-        })
+        return await self._rest.post(
+            "/transfers/withdraw",
+            {
+                "tkn": token,
+                "amt": amount,
+                "nonce": nonce,
+                "sig": sig,
+            },
+        )
 
     async def faucet(
         self, usr_addr: str, asset: str, amt: str, on_chain: bool = False

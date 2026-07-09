@@ -3,6 +3,7 @@
 WARNING: This is an example only. Real market making requires
 proper risk management, inventory control, and hedging.
 """
+
 import asyncio
 import os
 
@@ -10,7 +11,6 @@ from obsdn.client import Client
 from obsdn.env import Env
 from obsdn.rest.orders import LimitOrder
 from obsdn.types import OrderSide
-
 
 MARKET = "BTC-PERP"
 SPREAD_BPS = 50  # 0.5% spread
@@ -50,12 +50,24 @@ async def main():
 
             # Place new quotes
             try:
-                bid = await client.orders().place_limit(LimitOrder(
-                    mkt_id=MARKET, side=OrderSide.BUY, price=bid_px, size=SIZE, post_only=True,
-                ))
-                ask = await client.orders().place_limit(LimitOrder(
-                    mkt_id=MARKET, side=OrderSide.SELL, price=ask_px, size=SIZE, post_only=True,
-                ))
+                await client.orders().place_limit(
+                    LimitOrder(
+                        mkt_id=MARKET,
+                        side=OrderSide.BUY,
+                        price=bid_px,
+                        size=SIZE,
+                        post_only=True,
+                    )
+                )
+                await client.orders().place_limit(
+                    LimitOrder(
+                        mkt_id=MARKET,
+                        side=OrderSide.SELL,
+                        price=ask_px,
+                        size=SIZE,
+                        post_only=True,
+                    )
+                )
                 print(f"  mid={mid:.0f}  bid={bid_px}  ask={ask_px}")
             except Exception as e:
                 print(f"  Error: {e}")

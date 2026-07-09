@@ -5,14 +5,13 @@ import json
 import logging
 import time
 from collections import defaultdict
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 import websockets
 from websockets.asyncio.client import connect
 
 from obsdn.auth import HmacSigner
-from obsdn.env import Env, CustomEnv
-from obsdn.error import WsError
 from obsdn.ws.cache import MarketDataCache
 from obsdn.ws.channel import Channel, ChannelName
 from obsdn.ws.event import Event, EventType, Update
@@ -62,11 +61,15 @@ class Session:
         self._subscriptions.discard(channel)
         if self._ws is not None:
             try:
-                await self._ws.send(json.dumps({
-                    "op": "unsub",
-                    "channel": channel.name.value,
-                    "params": channel.wire_params(),
-                }))
+                await self._ws.send(
+                    json.dumps(
+                        {
+                            "op": "unsub",
+                            "channel": channel.name.value,
+                            "params": channel.wire_params(),
+                        }
+                    )
+                )
             except Exception:
                 pass
         for q in self._queues.pop(channel, []):
@@ -125,14 +128,18 @@ class Session:
             return
         ts = str(int(time.time()))
         sig = self._signer.sign_ws(ts)
-        await self._ws.send(json.dumps({
-            "op": "auth",
-            "params": {
-                "key": self._signer.api_key,
-                "timestamp": ts,
-                "signature": sig,
-            },
-        }))
+        await self._ws.send(
+            json.dumps(
+                {
+                    "op": "auth",
+                    "params": {
+                        "key": self._signer.api_key,
+                        "timestamp": ts,
+                        "signature": sig,
+                    },
+                }
+            )
+        )
 
     async def _send_sub(self, channel: Channel) -> None:
         if channel.name.is_private and not self._authenticated and self._signer:
@@ -167,10 +174,12 @@ class Session:
                 logger.debug("WS authenticated")
             else:
                 logger.warning("WS auth failed: %s", frame.get("message"))
-                self._dispatch_event(Event(
-                    type=EventType.UNAUTHORIZED,
-                    message=frame.get("message", "auth failed"),
-                ))
+                self._dispatch_event(
+                    Event(
+                        type=EventType.UNAUTHORIZED,
+                        message=frame.get("message", "auth failed"),
+                    )
+                )
             return
 
         if op in ("error", "subscribed", "unsubscribed"):
@@ -193,7 +202,9 @@ class Session:
         update_reason = frame.get("update_reason")
         # Filter comes in "filter" field or nested in "params"
         filt = frame.get("filter", {})
-        filter_val = filt.get("market", filt.get("asset", "")) if isinstance(filt, dict) else str(filt)
+        filter_val = (
+            filt.get("market", filt.get("asset", "")) if isinstance(filt, dict) else str(filt)
+        )
         is_snapshot = op == "snapshot"
 
         self._apply_to_cache(ch_name, filter_val, data, is_snapshot)
@@ -210,9 +221,7 @@ class Session:
         )
         self._dispatch_update(ch_name, filter_val, update)
 
-    def _apply_to_cache(
-        self, ch: ChannelName, filt: str, data: Any, is_snapshot: bool
-    ) -> None:
+    def _apply_to_cache(self, ch: ChannelName, filt: str, data: Any, is_snapshot: bool) -> None:
         if ch == ChannelName.BOOK:
             bids = data.get("bids", [])
             asks = data.get("asks", [])

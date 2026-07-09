@@ -4,10 +4,11 @@ eth_account's encode_typed_data accepts either three positional args
 (domain_data, message_types, message_data) or a single full_message dict.
 We use the full_message form for explicit primaryType control.
 """
+
 from __future__ import annotations
 
 from eth_account import Account
-from eth_account.messages import encode_typed_data, SignableMessage
+from eth_account.messages import SignableMessage, encode_typed_data
 
 EIP712_DOMAIN_TYPE = [
     {"name": "name", "type": "string"},

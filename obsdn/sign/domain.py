@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from obsdn.env import Env, CustomEnv
+from obsdn.env import CustomEnv, Env
 from obsdn.error import ConfigError
 
 STAGING_DOMAIN = {

@@ -14,12 +14,8 @@ STAGING_SIGNER_KEY = os.environ.get("OBSDN_TEST_SIGNER_KEY", "")
 has_credentials = bool(STAGING_API_KEY and STAGING_API_SECRET)
 has_signer_key = bool(STAGING_SIGNER_KEY)
 
-skip_no_creds = pytest.mark.skipif(
-    not has_credentials, reason="OBSDN_TEST_API_KEY/SECRET not set"
-)
-skip_no_key = pytest.mark.skipif(
-    not has_signer_key, reason="OBSDN_TEST_SIGNER_KEY not set"
-)
+skip_no_creds = pytest.mark.skipif(not has_credentials, reason="OBSDN_TEST_API_KEY/SECRET not set")
+skip_no_key = pytest.mark.skipif(not has_signer_key, reason="OBSDN_TEST_SIGNER_KEY not set")
 
 
 @pytest.fixture

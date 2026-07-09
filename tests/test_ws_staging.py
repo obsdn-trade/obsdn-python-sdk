@@ -1,4 +1,5 @@
 """WebSocket smoke tests against staging testnet."""
+
 from __future__ import annotations
 
 import asyncio
@@ -6,8 +7,7 @@ import asyncio
 import pytest
 
 from obsdn.ws.channel import Channel
-from obsdn.ws.event import Update, Event, EventType
-from tests.conftest import skip_no_creds
+from obsdn.ws.event import Event, Update
 
 
 @pytest.mark.asyncio

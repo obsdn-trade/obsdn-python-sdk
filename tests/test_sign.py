@@ -3,10 +3,10 @@ struct hashes, digests, and signatures against the exchange's reference signer.
 
 Fixtures under tests/fixtures/eip712/*.json are copied from the Rust SDK.
 """
+
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 
 import pytest
@@ -275,9 +275,7 @@ def test_golden_signature(fixture_name: str):
     digest = keccak(b"\x19\x01" + domain_sep + struct_hash)
     expected_digest = bytes.fromhex(f["digest"].removeprefix("0x"))
     assert digest == expected_digest, (
-        f"{fixture_name}: digest mismatch\n"
-        f"  got:      0x{digest.hex()}\n"
-        f"  expected: {f['digest']}"
+        f"{fixture_name}: digest mismatch\n  got:      0x{digest.hex()}\n  expected: {f['digest']}"
     )
 
     # Sign and verify signature matches
